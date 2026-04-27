@@ -83,6 +83,64 @@ const defaultModules     = { PolicyCenter:true, ClaimCenter:true, BillingCenter:
 const defaultTeam        = { gw_lead:1, gw_config:2, gw_int:1, gw_ba:1, jutro:0, qa_lead:1, qa_eng:1, devops:1, svc_mgr:0.5, arch:0.25 };
 const defaultLocation    = { onshore:30, nearshore:40, offshore:30 };
 
+// ── UI Components (defined OUTSIDE App to prevent focus loss on re-render) ───
+const Card = ({ children, style={} }) => (
+  <div style={{ background:"#fff", borderRadius:10, border:"1px solid #E5E7EB", padding:18, boxShadow:"0 1px 4px rgba(0,0,0,0.06)", ...style }}>{children}</div>
+);
+
+const STitle = ({ children }) => (
+  <div style={{ fontSize:10, fontWeight:800, color:NTT_BLUE, textTransform:"uppercase", letterSpacing:"0.1em", marginBottom:12, paddingBottom:6, borderBottom:`2px solid ${NTT_BLUE}` }}>{children}</div>
+);
+
+const Label = ({ children }) => (
+  <div style={{ fontSize:10, fontWeight:700, color:GRAY, textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:4 }}>{children}</div>
+);
+
+const Input = ({ label, value, onChange, type="text", placeholder="" }) => (
+  <div style={{ marginBottom:14 }}>
+    <Label>{label}</Label>
+    <input type={type} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
+      style={{ width:"100%", padding:"9px 11px", border:"1.5px solid #D1D5DB", borderRadius:7, fontSize:13, color:"#111827", background:"#fff", fontFamily:SANS }} />
+  </div>
+);
+
+const Sel = ({ label, value, onChange, options }) => (
+  <div style={{ marginBottom:14 }}>
+    <Label>{label}</Label>
+    <select value={value} onChange={e => onChange(e.target.value)}
+      style={{ width:"100%", padding:"9px 11px", border:"1.5px solid #D1D5DB", borderRadius:7, fontSize:13, color:"#111827", background:"#fff", fontFamily:SANS }}>
+      {options.map(o => <option key={o.value ?? o} value={o.value ?? o}>{o.label ?? o}</option>)}
+    </select>
+  </div>
+);
+
+const Slider = ({ label, value, onChange, min, max, step=1, suffix="" }) => (
+  <div style={{ marginBottom:16 }}>
+    <div style={{ display:"flex", justifyContent:"space-between", marginBottom:5 }}>
+      <Label>{label}</Label>
+      <span style={{ fontSize:13, fontWeight:800, color:NTT_BLUE, fontFamily:MONO }}>{value}{suffix}</span>
+    </div>
+    <input type="range" min={min} max={max} step={step} value={value} onChange={e => onChange(Number(e.target.value))}
+      style={{ width:"100%", accentColor:NTT_BLUE }} />
+    <div style={{ display:"flex", justifyContent:"space-between", fontSize:10, color:"#9CA3AF", marginTop:2 }}>
+      <span>{min}{suffix}</span><span>{max}{suffix}</span>
+    </div>
+  </div>
+);
+
+const Toggle = ({ label, checked, onChange, sub }) => (
+  <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:12, padding:"8px 10px", background:checked ? NTT_LIGHT:"#F9FAFB", borderRadius:7, cursor:"pointer", border:`1px solid ${checked ? NTT_BLUE:"#E5E7EB"}` }}
+    onClick={() => onChange(!checked)}>
+    <div style={{ width:40, height:22, borderRadius:11, background:checked ? NTT_BLUE:"#D1D5DB", flexShrink:0, position:"relative", transition:"background 0.2s" }}>
+      <div style={{ position:"absolute", top:3, left:checked ? 20:3, width:16, height:16, borderRadius:"50%", background:"#fff", transition:"left 0.2s", boxShadow:"0 1px 3px rgba(0,0,0,0.2)" }} />
+    </div>
+    <div>
+      <div style={{ fontSize:13, color:checked ? NTT_BLUE:"#374151", fontWeight:600 }}>{label}</div>
+      {sub && <div style={{ fontSize:10, color:"#9CA3AF" }}>{sub}</div>}
+    </div>
+  </div>
+);
+
 // ─────────────────────────────────────────────────────────────────────────────
 export default function App() {
   const [mainTab,      setMainTab]      = useState("opportunities");
@@ -314,64 +372,6 @@ export default function App() {
     a.click();
     URL.revokeObjectURL(url);
   }
-
-  // ── UI helpers ────────────────────────────────────────────────────────────
-  const Card = ({ children, style={} }) => (
-    <div style={{ background:"#fff", borderRadius:10, border:"1px solid #E5E7EB", padding:18, boxShadow:"0 1px 4px rgba(0,0,0,0.06)", ...style }}>{children}</div>
-  );
-
-  const STitle = ({ children }) => (
-    <div style={{ fontSize:10, fontWeight:800, color:NTT_BLUE, textTransform:"uppercase", letterSpacing:"0.1em", marginBottom:12, paddingBottom:6, borderBottom:`2px solid ${NTT_BLUE}` }}>{children}</div>
-  );
-
-  const Label = ({ children }) => (
-    <div style={{ fontSize:10, fontWeight:700, color:GRAY, textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:4 }}>{children}</div>
-  );
-
-  const Input = ({ label, value, onChange, type="text", placeholder="" }) => (
-    <div style={{ marginBottom:14 }}>
-      <Label>{label}</Label>
-      <input type={type} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
-        style={{ width:"100%", padding:"9px 11px", border:"1.5px solid #D1D5DB", borderRadius:7, fontSize:13, color:"#111827", background:"#fff", fontFamily:SANS }} />
-    </div>
-  );
-
-  const Sel = ({ label, value, onChange, options }) => (
-    <div style={{ marginBottom:14 }}>
-      <Label>{label}</Label>
-      <select value={value} onChange={e => onChange(e.target.value)}
-        style={{ width:"100%", padding:"9px 11px", border:"1.5px solid #D1D5DB", borderRadius:7, fontSize:13, color:"#111827", background:"#fff", fontFamily:SANS }}>
-        {options.map(o => <option key={o.value ?? o} value={o.value ?? o}>{o.label ?? o}</option>)}
-      </select>
-    </div>
-  );
-
-  const Slider = ({ label, value, onChange, min, max, step=1, suffix="" }) => (
-    <div style={{ marginBottom:16 }}>
-      <div style={{ display:"flex", justifyContent:"space-between", marginBottom:5 }}>
-        <Label>{label}</Label>
-        <span style={{ fontSize:13, fontWeight:800, color:NTT_BLUE, fontFamily:MONO }}>{value}{suffix}</span>
-      </div>
-      <input type="range" min={min} max={max} step={step} value={value} onChange={e => onChange(Number(e.target.value))}
-        style={{ width:"100%", accentColor:NTT_BLUE }} />
-      <div style={{ display:"flex", justifyContent:"space-between", fontSize:10, color:"#9CA3AF", marginTop:2 }}>
-        <span>{min}{suffix}</span><span>{max}{suffix}</span>
-      </div>
-    </div>
-  );
-
-  const Toggle = ({ label, checked, onChange, sub }) => (
-    <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:12, padding:"8px 10px", background:checked ? NTT_LIGHT:"#F9FAFB", borderRadius:7, cursor:"pointer", border:`1px solid ${checked ? NTT_BLUE:"#E5E7EB"}` }}
-      onClick={() => onChange(!checked)}>
-      <div style={{ width:40, height:22, borderRadius:11, background:checked ? NTT_BLUE:"#D1D5DB", flexShrink:0, position:"relative", transition:"background 0.2s" }}>
-        <div style={{ position:"absolute", top:3, left:checked ? 20:3, width:16, height:16, borderRadius:"50%", background:"#fff", transition:"left 0.2s", boxShadow:"0 1px 3px rgba(0,0,0,0.2)" }} />
-      </div>
-      <div>
-        <div style={{ fontSize:13, color:checked ? NTT_BLUE:"#374151", fontWeight:600 }}>{label}</div>
-        {sub && <div style={{ fontSize:10, color:"#9CA3AF" }}>{sub}</div>}
-      </div>
-    </div>
-  );
 
   // ── OPPORTUNITIES LIST ────────────────────────────────────────────────────
   const filteredOpps = opportunities.filter(o => {
